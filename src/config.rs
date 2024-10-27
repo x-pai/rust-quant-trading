@@ -12,6 +12,7 @@ pub struct TradingConfig {
     pub symbols: Vec<String>,
     pub risk_limits: RiskLimits,
     pub strategy_params: StrategyParams,
+    pub notification: NotificationConfig,
 }
 
 impl TradingConfig {
@@ -33,4 +34,15 @@ pub struct RiskLimits {
 pub struct StrategyParams {
     pub short_window: usize,
     pub long_window: usize,
+}
+
+#[derive(Deserialize, Debug)]
+pub struct NotificationConfig {
+    pub dingtalk: DingTalkConfig,
+}
+
+#[derive(Deserialize, Debug)]
+pub struct DingTalkConfig {
+    pub webhook: String,
+    pub secret: String,
 }

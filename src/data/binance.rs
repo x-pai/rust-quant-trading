@@ -6,7 +6,7 @@ use rust_decimal::Decimal;
 use std::sync::Arc;
 
 use crate::config::TradingConfig;
-use crate::error::TradingError;
+use crate::error::Error;
 use crate::types::Kline;
 
 #[derive(Debug)]
@@ -19,7 +19,7 @@ impl BinanceDataFetcher {
         BinanceDataFetcher { config }
     }
 
-    pub async fn fetch_data(&self) -> Result<Vec<Kline>, TradingError> {
+    pub async fn fetch_data(&self) -> Result<Vec<Kline>, Error> {
         // 在这里实现从 Binance 获取数据的逻辑
         Ok(vec![]) // 返回模拟数据或实际 API 数据
     }
@@ -27,7 +27,7 @@ impl BinanceDataFetcher {
 
 #[async_trait]
 impl DataFetcher for BinanceDataFetcher {
-    async fn fetch(&self) -> Result<Vec<Kline>, TradingError> {
+    async fn fetch(&self) -> Result<Vec<Kline>, Error> {
         self.fetch_data().await
     }
 
@@ -36,7 +36,7 @@ impl DataFetcher for BinanceDataFetcher {
         symbol: &str,
         interval: &str,
         limit: u32,
-    ) -> Result<Vec<Kline>, TradingError> {
+    ) -> Result<Vec<Kline>, Error> {
         // let url = format!("{}/api/v3/klines", self.base_url);
         // let response = self.client
         //     .get(&url)
@@ -47,12 +47,12 @@ impl DataFetcher for BinanceDataFetcher {
         //     ])
         //     .send()
         //     .await
-        //     .map_err(|e| TradingError::NetworkError(e.to_string()))?;
+        //     .map_err(|e| Error::NetworkError(e.to_string()))?;
 
         // let klines: Vec<BinanceKlineResponse> = response
         //     .json()
         //     .await
-        //     .map_err(|e| TradingError::ParseError(e.to_string()))?;
+        //     .map_err(|e| Error::ParseError(e.to_string()))?;
 
         // // 将 Binance API 返回的数据转换为 Vec<Kline>
         // let result = klines
@@ -71,14 +71,14 @@ impl DataFetcher for BinanceDataFetcher {
         Ok(vec![])
     }
 
-    async fn fetch_ticker(&self, symbol: &str) -> Result<Decimal, TradingError> {
+    async fn fetch_ticker(&self, symbol: &str) -> Result<Decimal, Error> {
         // let url = format!("{}/api/v3/ticker/price", self.base_url);
         // let response = self.client
         //     .get(&url)
         //     .query(&[("symbol", symbol)])
         //     .send()
         //     .await
-        //     .map_err(|e| TradingError::NetworkError(e.to_string()))?;
+        //     .map_err(|e| Error::NetworkError(e.to_string()))?;
 
         // // 从响应中提取价格
         // #[derive(Deserialize)]
@@ -89,12 +89,12 @@ impl DataFetcher for BinanceDataFetcher {
         // let price_data: PriceResponse = response
         //     .json()
         //     .await
-        //     .map_err(|e| TradingError::ParseError(e.to_string()))?;
+        //     .map_err(|e| Error::ParseError(e.to_string()))?;
 
         // let price = price_data
         //     .price
         //     .parse::<Decimal>()
-        //     .map_err(|e| TradingError::ParseError(e.to_string()))?;
+        //     .map_err(|e| Error::ParseError(e.to_string()))?;
 
         // Ok(price)
         Ok(Decimal::new(0, 2))

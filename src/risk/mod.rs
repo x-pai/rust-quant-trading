@@ -1,5 +1,5 @@
 use crate::config::TradingConfig;
-use crate::error::TradingError;
+use crate::error::Error;
 use crate::types::Position;
 
 use rust_decimal::Decimal;
@@ -19,12 +19,7 @@ impl RiskManager {
         }
     }
 
-    pub fn check_risk(
-        &self,
-        symbol: &str,
-        size: Decimal,
-        price: Decimal,
-    ) -> Result<bool, TradingError> {
+    pub fn check_risk(&self, symbol: &str, size: Decimal, price: Decimal) -> Result<bool, Error> {
         // 检查持仓限制
         let total_exposure: Decimal = self
             .positions

@@ -6,6 +6,7 @@ pub mod crypto_tools;
 mod data;
 mod error;
 mod exchange;
+mod notification;
 mod risk;
 mod strategy;
 mod trading_system;

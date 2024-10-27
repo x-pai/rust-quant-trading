@@ -7,7 +7,7 @@ use tracing::{error, info};
 
 use crate::config::TradingConfig;
 use crate::data::DataFetcher;
-use crate::error::TradingError;
+use crate::error::Error;
 use crate::exchange::BinanceExchange;
 use crate::exchange::Exchange;
 use crate::risk::RiskManager;
@@ -26,7 +26,7 @@ pub struct TradingSystem {
 }
 
 impl TradingSystem {
-    pub async fn new(config: TradingConfig) -> Result<Self, TradingError> {
+    pub async fn new(config: TradingConfig) -> Result<Self, Error> {
         let config = Arc::new(config);
 
         // 初始化交易所连接
@@ -34,9 +34,7 @@ impl TradingSystem {
             "binance" => Box::new(BinanceExchange::new(config.clone())) as Box<dyn Exchange>,
             _ => {
                 error!("Unsupported exchange");
-                return Err(TradingError::ConfigError(
-                    "Unsupported exchange".to_string(),
-                ));
+                return Err(Error::ConfigError("Unsupported exchange".to_string()));
             }
         };
 
@@ -59,7 +57,7 @@ impl TradingSystem {
         })
     }
 
-    pub async fn run(&self) -> Result<(), TradingError> {
+    pub async fn run(&self) -> Result<(), Error> {
         info!("Starting trading system...");
 
         loop {
@@ -75,7 +73,7 @@ impl TradingSystem {
         }
     }
 
-    async fn process_symbol(&self, symbol: &str) -> Result<(), TradingError> {
+    async fn process_symbol(&self, symbol: &str) -> Result<(), Error> {
         // 获取市场数据
         let klines = self.data_fetcher.fetch_klines(symbol, "1m", 1000).await?;
 
@@ -101,7 +99,7 @@ impl TradingSystem {
         Ok(())
     }
 
-    async fn handle_buy_signal(&self, symbol: &str, price: Decimal) -> Result<(), TradingError> {
+    async fn handle_buy_signal(&self, symbol: &str, price: Decimal) -> Result<(), Error> {
         // 计算建议仓位大小
         let size = self.strategy.calculate_position_size(price);
 
@@ -129,7 +127,7 @@ impl TradingSystem {
         Ok(())
     }
 
-    async fn handle_sell_signal(&self, symbol: &str, price: Decimal) -> Result<(), TradingError> {
+    async fn handle_sell_signal(&self, symbol: &str, price: Decimal) -> Result<(), Error> {
         // 获取当前持仓
         let positions = self.exchange.get_positions().await?;
 

@@ -8,7 +8,7 @@ use std::sync::Arc;
 
 use crate::config::TradingConfig;
 use crate::crypto_tools;
-use crate::error::TradingError;
+use crate::error::Error;
 use crate::types::{Order, OrderType, Position};
 
 pub struct BinanceExchange {
@@ -52,7 +52,7 @@ impl Exchange for BinanceExchange {
         order_type: OrderType,
         size: Decimal,
         price: Option<Decimal>,
-    ) -> Result<Order, TradingError> {
+    ) -> Result<Order, Error> {
         let mut params = HashMap::new();
         params.insert("symbol".to_string(), symbol.to_string());
         params.insert("side".to_string(), order_type.to_string());
@@ -71,12 +71,12 @@ impl Exchange for BinanceExchange {
             .post(&url)
             .send()
             .await
-            .map_err(|e| TradingError::ApiError(e.to_string()))?;
+            .map_err(|e| Error::ApiError(e.to_string()))?;
 
         let binance_order: BinanceOrder = response
             .json()
             .await
-            .map_err(|e| TradingError::ApiError(e.to_string()))?;
+            .map_err(|e| Error::ApiError(e.to_string()))?;
 
         Ok(Order {
             order_id: binance_order.orderId.to_string(),
@@ -88,7 +88,7 @@ impl Exchange for BinanceExchange {
         })
     }
 
-    async fn cancel_order(&self, order_id: &str) -> Result<(), TradingError> {
+    async fn cancel_order(&self, order_id: &str) -> Result<(), Error> {
         let mut params = HashMap::new();
         params.insert("orderId".to_string(), order_id.to_string());
 
@@ -99,12 +99,12 @@ impl Exchange for BinanceExchange {
             .delete(&url)
             .send()
             .await
-            .map_err(|e| TradingError::ApiError(e.to_string()))?;
+            .map_err(|e| Error::ApiError(e.to_string()))?;
 
         Ok(())
     }
 
-    async fn get_positions(&self) -> Result<Vec<Position>, TradingError> {
+    async fn get_positions(&self) -> Result<Vec<Position>, Error> {
         let mut params = HashMap::new();
         let query = self.sign_request(&mut params).await;
         let url = format!("{}/api/v3/account?{}", self.base_url, query);
@@ -114,12 +114,12 @@ impl Exchange for BinanceExchange {
             .get(&url)
             .send()
             .await
-            .map_err(|e| TradingError::ApiError(e.to_string()))?;
+            .map_err(|e| Error::ApiError(e.to_string()))?;
 
         let account: BinanceAccount = response
             .json()
             .await
-            .map_err(|e| TradingError::ApiError(e.to_string()))?;
+            .map_err(|e| Error::ApiError(e.to_string()))?;
 
         Ok(account
             .balances
@@ -135,7 +135,7 @@ impl Exchange for BinanceExchange {
             .collect())
     }
 
-    async fn get_balance(&self) -> Result<HashMap<String, Decimal>, TradingError> {
+    async fn get_balance(&self) -> Result<HashMap<String, Decimal>, Error> {
         let mut params = HashMap::new();
         let query = self.sign_request(&mut params).await;
         let url = format!("{}/api/v3/account?{}", self.base_url, query);
@@ -145,12 +145,12 @@ impl Exchange for BinanceExchange {
             .get(&url)
             .send()
             .await
-            .map_err(|e| TradingError::ApiError(e.to_string()))?;
+            .map_err(|e| Error::ApiError(e.to_string()))?;
 
         let account: BinanceAccount = response
             .json()
             .await
-            .map_err(|e| TradingError::ApiError(e.to_string()))?;
+            .map_err(|e| Error::ApiError(e.to_string()))?;
 
         Ok(account
             .balances

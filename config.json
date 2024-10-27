@@ -12,5 +12,11 @@
     "strategy_params": {
         "short_window": 14,
         "long_window": 50
+    },
+    "notification": {
+        "dingtalk": {
+            "webhook": "https://oapi.dingtalk.com/robot/send?access_token=xxx",
+            "secret": "your_secret_here"
+        }
     }
 }

@@ -2,7 +2,7 @@
 use super::Exchange;
 
 use crate::data::TushareDataFetcher;
-use crate::error::TradingError; // 自定义错误类型
+use crate::error::Error; // 自定义错误类型
 use crate::types::{Kline, Order, OrderType, Position}; // 假设这些类型在 types.rs 中定义
 use async_trait::async_trait;
 use rust_decimal::Decimal;
@@ -33,7 +33,7 @@ impl Exchange for TushareExchange {
         order_type: OrderType,
         size: Decimal,
         price: Option<Decimal>,
-    ) -> Result<Order, TradingError> {
+    ) -> Result<Order, Error> {
         // 模拟生成一个订单
         Ok(Order {
             order_id: "simulated_order_id".to_string(),
@@ -46,19 +46,19 @@ impl Exchange for TushareExchange {
     }
 
     // 模拟取消订单
-    async fn cancel_order(&self, order_id: &str) -> Result<(), TradingError> {
+    async fn cancel_order(&self, order_id: &str) -> Result<(), Error> {
         // 这里模拟取消订单逻辑，可以记录日志等操作
         println!("Order {} canceled.", order_id);
         Ok(())
     }
 
     // 返回模拟的持仓信息
-    async fn get_positions(&self) -> Result<Vec<Position>, TradingError> {
+    async fn get_positions(&self) -> Result<Vec<Position>, Error> {
         Ok(self.positions.values().cloned().collect())
     }
 
     // 返回模拟的账户余额
-    async fn get_balance(&self) -> Result<HashMap<String, Decimal>, TradingError> {
+    async fn get_balance(&self) -> Result<HashMap<String, Decimal>, Error> {
         Ok(self.balances.clone())
     }
 }
