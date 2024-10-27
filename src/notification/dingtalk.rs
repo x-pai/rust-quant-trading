@@ -25,6 +25,20 @@ struct TextContent {
     content: String,
 }
 
+// Markdown 消息的内容结构
+#[derive(Debug, Serialize)]
+struct DingTalkMarkdownMessage {
+    msgtype: String,
+    markdown: MarkdownContent,
+}
+
+// Markdown 内容结构
+#[derive(Debug, Serialize)]
+struct MarkdownContent {
+    title: String,
+    text: String,
+}
+
 impl DingTalkBot {
     pub fn new(webhook: String, secret: String) -> Self {
         Self {
@@ -68,4 +82,83 @@ impl DingTalkBot {
 
         Ok(())
     }
+
+        // 发送 Markdown 消息的方法
+        pub async fn send_markdown(&self, title: String, text: String) -> Result<(), Error> {
+            let timestamp = SystemTime::now().duration_since(UNIX_EPOCH)?.as_millis() as i64;
+    
+            let sign = self.generate_signature(timestamp);
+    
+            let webhook_with_params = format!("{}&timestamp={}&sign={}", self.webhook, timestamp, sign);
+    
+            let markdown_message = DingTalkMarkdownMessage {
+                msgtype: "markdown".to_string(),
+                markdown: MarkdownContent { title, text },
+            };
+    
+            let response = self
+                .client
+                .post(&webhook_with_params)
+                .json(&markdown_message)
+                .send()
+                .await?;
+    
+            if !response.status().is_success() {
+                return Err("Failed to send DingTalk markdown message".into());
+            }
+    
+            Ok(())
+        }
+
+}
+
+#[tokio::test]
+async fn test_send_text() -> Result<(), Error> {
+    // 设置你的 webhook 和 secret
+    let webhook = "https://oapi.dingtalk.com/robot/send?access_token=af239c52fb5aa86a96719498fc4894b75beaaa07bbd15777877895dc61b3ee07".to_string();
+    let secret = "SECf39f5df6d4957fa1123291f040ec27a47ec38073118a0bc78a24b82643ea8cd6".to_string();
+
+    let bot = DingTalkBot::new(webhook.clone(), secret.clone());
+
+    // 尝试发送真实消息
+    let result = bot.send_text("Test message from Rust!".to_string()).await;
+
+    // 检查结果是否成功
+    match result {
+        Ok(_) => {
+            println!("Message sent successfully!");
+        }
+        Err(e) => {
+            eprintln!("Failed to send message: {:?}", e);
+        }
+    }
+
+    Ok(())
+}
+
+#[tokio::test]
+async fn test_send_markdown() -> Result<(), Error> {
+    // 设置你的 webhook 和 secret
+    let webhook = "https://oapi.dingtalk.com/robot/send?access_token=af239c52fb5aa86a96719498fc4894b75beaaa07bbd15777877895dc61b3ee07".to_string();
+    let secret = "SECf39f5df6d4957fa1123291f040ec27a47ec38073118a0bc78a24b82643ea8cd6".to_string();
+
+    let bot = DingTalkBot::new(webhook.clone(), secret.clone());
+
+    // 尝试发送真实消息
+    let title = "Test Markdown Message".to_string();
+    let text = "### This is a Markdown message from Rust!\n\n* Bullet point 1\n* Bullet point 2\n\n[Click here](https://example.com)".to_string();
+
+    let result = bot.send_markdown(title, text).await;
+
+    // 检查结果是否成功
+    match result {
+        Ok(_) => {
+            println!("Message sent successfully!");
+        }
+        Err(e) => {
+            eprintln!("Failed to send message: {:?}", e);
+        }
+    }
+
+    Ok(())
 }

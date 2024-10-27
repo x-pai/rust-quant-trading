@@ -1,5 +1,4 @@
-use super::Strategy;
-
+use super::signal::{Direction, MACrossSignal};
 use async_trait::async_trait;
 use rust_decimal::prelude::ToPrimitive;
 use rust_decimal::Decimal;
@@ -8,42 +7,33 @@ use std::sync::Arc;
 use crate::config::TradingConfig;
 use crate::error::Error;
 use crate::notification::{dingtalk::DingTalkBot, NotificationMessage};
+use crate::strategy::Strategy;
 use crate::types::{Kline, Signal};
 
-// 为策略信号定义消息格式
-#[derive(Debug)]
-pub struct MaCrossSignal {
-    pub symbol: String,
-    pub direction: String,
-    pub price: f64,
-    pub timestamp: i64,
-}
-
-impl NotificationMessage for MaCrossSignal {
-    fn to_notification_message(&self) -> String {
-        format!(
-            "MA交叉信号提醒\n币对: {}\n方向: {}\n价格: {}\n时间: {}",
-            self.symbol, self.direction, self.price, self.timestamp
-        )
-    }
-}
-
-#[derive(Debug)]
 pub struct MACrossStrategy {
-    config: Arc<TradingConfig>,
+    // symbol: String,
+    // fast_period: usize,
+    // slow_period: usize,
     dingtalk: DingTalkBot,
+    // last_cross: Option<Direction>,
+    config: Arc<TradingConfig>,
 }
 
 impl MACrossStrategy {
-    pub fn new(config: Arc<TradingConfig>) -> Self {
-        Self {
-            dingtalk: DingTalkBot::new(
-                config.notification.dingtalk.webhook.clone(),
-                config.notification.dingtalk.secret.clone(),
-            ),
-            config,
-            // ... 其他字段初始化 ...
-        }
+    pub fn new(dingtalk: DingTalkBot, config: Arc<TradingConfig>) -> Self {
+        Self { dingtalk, config }
+    }
+
+    pub async fn on_kline(&mut self, kline: &Kline) -> Result<Option<MACrossSignal>, Error> {
+        // 策略逻辑实现...
+        Ok(None)
+    }
+
+    async fn send_signal(&self, signal: MACrossSignal) -> Result<(), Error> {
+        self.dingtalk
+            .send_text(signal.to_notification_message())
+            .await?;
+        Ok(())
     }
 
     /// 计算给定窗口大小的移动平均值
@@ -62,7 +52,7 @@ impl MACrossStrategy {
         sum.to_f64().map(|avg| avg / window_size as f64)
     }
 
-    async fn on_signal(&self, signal: MaCrossSignal) -> Result<(), Error> {
+    async fn on_signal(&self, signal: MACrossSignal) -> Result<(), Error> {
         // 发送信号到钉钉
         self.dingtalk
             .send_text(signal.to_notification_message())
@@ -102,3 +92,4 @@ impl Strategy for MACrossStrategy {
         self.config.risk_limits.max_position_size / price
     }
 }
+

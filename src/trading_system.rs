@@ -6,13 +6,13 @@ use tokio;
 use tracing::{error, info};
 
 use crate::config::TradingConfig;
+use crate::data::BinanceDataFetcher;
 use crate::data::DataFetcher;
 use crate::error::Error;
 use crate::exchange::BinanceExchange;
 use crate::exchange::Exchange;
+use crate::notification::{dingtalk::DingTalkBot, NotificationMessage};
 use crate::risk::RiskManager;
-// use crate::strategy::MACrossStrategy;
-use crate::data::BinanceDataFetcher;
 use crate::strategy::MACrossStrategy;
 use crate::strategy::Strategy;
 use crate::types::{Order, OrderType, Signal};
@@ -39,7 +39,13 @@ impl TradingSystem {
         };
 
         // 初始化策略
-        let strategy = Box::new(MACrossStrategy::new(config.clone())) as Box<dyn Strategy>;
+        let dingtalk = DingTalkBot::new(
+            config.notification.dingtalk.webhook.clone(),
+            config.notification.dingtalk.secret.clone(),
+        );
+
+        let strategy =
+            Box::new(MACrossStrategy::new(dingtalk.clone(), config.clone())) as Box<dyn Strategy>;
 
         // 初始化风险管理器
         let risk_manager = RiskManager::new(config.clone());
