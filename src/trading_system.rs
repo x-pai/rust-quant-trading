@@ -12,10 +12,10 @@ use crate::exchange::BinanceExchange;
 use crate::exchange::Exchange;
 use crate::risk::RiskManager;
 // use crate::strategy::MACrossStrategy;
-use crate::strategy::Strategy;
 use crate::data::BinanceDataFetcher;
-use crate::types::{Order, OrderType, Signal};
 use crate::strategy::MACrossStrategy;
+use crate::strategy::Strategy;
+use crate::types::{Order, OrderType, Signal};
 
 pub struct TradingSystem {
     config: Arc<TradingConfig>,
@@ -33,9 +33,10 @@ impl TradingSystem {
         let exchange = match config.exchange.as_str() {
             "binance" => Box::new(BinanceExchange::new(config.clone())) as Box<dyn Exchange>,
             _ => {
+                error!("Unsupported exchange");
                 return Err(TradingError::ConfigError(
                     "Unsupported exchange".to_string(),
-                ))
+                ));
             }
         };
 

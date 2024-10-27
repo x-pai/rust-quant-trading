@@ -1,8 +1,8 @@
-use serde::Deserialize;
+use anyhow::Result;
 use config::{Config, File};
 use rust_decimal::Decimal;
+use serde::Deserialize;
 use tokio::fs;
-use anyhow::Result;
 
 #[derive(Debug, Deserialize)]
 pub struct TradingConfig {
@@ -34,4 +34,3 @@ pub struct StrategyParams {
     pub short_window: usize,
     pub long_window: usize,
 }
-

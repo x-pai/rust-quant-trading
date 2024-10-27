@@ -1,0 +1,16 @@
+{
+    "api_key": "your_api_key_here",
+    "api_secret": "your_api_secret_here",
+    "exchange": "binance",
+    "symbols": ["BTCUSDT", "ETHUSDT"],
+    "risk_limits": {
+        "max_position_size": 1000.0,
+        "max_drawdown": 20.0,
+        "max_daily_loss": 500.0,
+        "stop_loss_rate": 5.0
+    },
+    "strategy_params": {
+        "short_window": 14,
+        "long_window": 50
+    }
+}

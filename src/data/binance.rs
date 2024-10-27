@@ -1,13 +1,13 @@
 // src/data_fetchers/binance.rs
 use super::DataFetcher;
 
-use rust_decimal::Decimal;
 use async_trait::async_trait;
-use std::sync::{Arc};
+use rust_decimal::Decimal;
+use std::sync::Arc;
 
 use crate::config::TradingConfig;
-use crate::types::Kline;
 use crate::error::TradingError;
+use crate::types::Kline;
 
 #[derive(Debug)]
 pub struct BinanceDataFetcher {
@@ -25,15 +25,18 @@ impl BinanceDataFetcher {
     }
 }
 
-
-
 #[async_trait]
 impl DataFetcher for BinanceDataFetcher {
     async fn fetch(&self) -> Result<Vec<Kline>, TradingError> {
         self.fetch_data().await
     }
 
-    async fn fetch_klines(&self, symbol: &str, interval: &str, limit: u32) -> Result<Vec<Kline>, TradingError> {
+    async fn fetch_klines(
+        &self,
+        symbol: &str,
+        interval: &str,
+        limit: u32,
+    ) -> Result<Vec<Kline>, TradingError> {
         // let url = format!("{}/api/v3/klines", self.base_url);
         // let response = self.client
         //     .get(&url)
@@ -63,7 +66,7 @@ impl DataFetcher for BinanceDataFetcher {
         //         volume: k.5.parse().unwrap_or(Decimal::ZERO),
         //     })
         //     .collect();
-        
+
         // Ok(result)
         Ok(vec![])
     }
@@ -96,5 +99,4 @@ impl DataFetcher for BinanceDataFetcher {
         // Ok(price)
         Ok(Decimal::new(0, 2))
     }
-
 }

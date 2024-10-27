@@ -1,11 +1,10 @@
-use crate::types::Position;
 use crate::config::TradingConfig;
 use crate::error::TradingError;
+use crate::types::Position;
 
-use std::sync::{Arc};
-use std::collections::HashMap;
 use rust_decimal::Decimal;
-
+use std::collections::HashMap;
+use std::sync::Arc;
 
 pub struct RiskManager {
     config: Arc<TradingConfig>,
@@ -20,21 +19,26 @@ impl RiskManager {
         }
     }
 
-    pub fn check_risk(&self, symbol: &str, size: Decimal, price: Decimal) -> Result<bool, TradingError> {
+    pub fn check_risk(
+        &self,
+        symbol: &str,
+        size: Decimal,
+        price: Decimal,
+    ) -> Result<bool, TradingError> {
         // 检查持仓限制
-        let total_exposure: Decimal = self.positions.values()
+        let total_exposure: Decimal = self
+            .positions
+            .values()
             .map(|p| p.size * p.current_price)
             .sum();
-            
+
         if total_exposure + (size * price) > self.config.risk_limits.max_position_size {
             return Ok(false);
         }
 
         // 检查回撤限制
-        let total_pnl: Decimal = self.positions.values()
-            .map(|p| p.unrealized_pnl)
-            .sum();
-            
+        let total_pnl: Decimal = self.positions.values().map(|p| p.unrealized_pnl).sum();
+
         if total_pnl < -self.config.risk_limits.max_drawdown {
             return Ok(false);
         }

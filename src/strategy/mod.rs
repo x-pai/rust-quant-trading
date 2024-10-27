@@ -1,11 +1,11 @@
 mod ma_cross;
 pub use ma_cross::MACrossStrategy;
 
-use rust_decimal::Decimal;
 use crate::error::TradingError;
+use rust_decimal::Decimal;
 
-use async_trait::async_trait;
 use crate::types::{Kline, Signal};
+use async_trait::async_trait;
 
 #[async_trait]
 pub trait Strategy {
