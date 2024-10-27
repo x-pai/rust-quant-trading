@@ -30,3 +30,18 @@
 - 并发性能好
 - 类型安全
 - 编译时错误检查
+
+# Compilation and testing
+
+```
+cargo run
+```
+
+
+# Configuration
+
+To run the application, you need to provide a configuration file.
+
+1. Copy `config.example.json` to `config.json`.
+2. Replace the placeholder values in `config.json` with your actual API key, secret, and other parameters.
+3. Alternatively, you can create a `.env` file with the required environment variables.

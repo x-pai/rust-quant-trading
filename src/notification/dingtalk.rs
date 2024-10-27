@@ -83,40 +83,44 @@ impl DingTalkBot {
         Ok(())
     }
 
-        // 发送 Markdown 消息的方法
-        pub async fn send_markdown(&self, title: String, text: String) -> Result<(), Error> {
-            let timestamp = SystemTime::now().duration_since(UNIX_EPOCH)?.as_millis() as i64;
-    
-            let sign = self.generate_signature(timestamp);
-    
-            let webhook_with_params = format!("{}&timestamp={}&sign={}", self.webhook, timestamp, sign);
-    
-            let markdown_message = DingTalkMarkdownMessage {
-                msgtype: "markdown".to_string(),
-                markdown: MarkdownContent { title, text },
-            };
-    
-            let response = self
-                .client
-                .post(&webhook_with_params)
-                .json(&markdown_message)
-                .send()
-                .await?;
-    
-            if !response.status().is_success() {
-                return Err("Failed to send DingTalk markdown message".into());
-            }
-    
-            Ok(())
+    // 发送 Markdown 消息的方法
+    pub async fn send_markdown(&self, title: String, text: String) -> Result<(), Error> {
+        let timestamp = SystemTime::now().duration_since(UNIX_EPOCH)?.as_millis() as i64;
+
+        let sign = self.generate_signature(timestamp);
+
+        let webhook_with_params = format!("{}&timestamp={}&sign={}", self.webhook, timestamp, sign);
+
+        let markdown_message = DingTalkMarkdownMessage {
+            msgtype: "markdown".to_string(),
+            markdown: MarkdownContent { title, text },
+        };
+
+        let response = self
+            .client
+            .post(&webhook_with_params)
+            .json(&markdown_message)
+            .send()
+            .await?;
+
+        if !response.status().is_success() {
+            return Err("Failed to send DingTalk markdown message".into());
         }
 
+        Ok(())
+    }
 }
 
 #[tokio::test]
-async fn test_send_text() -> Result<(), Error> {
+async fn test_send_text() -> anyhow::Result<()> {
+    // 加载配置
+    use crate::config::TradingConfig;
+    let config = TradingConfig::load_trading_config("config.json").await?;
+
     // 设置你的 webhook 和 secret
-    let webhook = "https://oapi.dingtalk.com/robot/send?access_token=af239c52fb5aa86a96719498fc4894b75beaaa07bbd15777877895dc61b3ee07".to_string();
-    let secret = "SECf39f5df6d4957fa1123291f040ec27a47ec38073118a0bc78a24b82643ea8cd6".to_string();
+    let webhook = config.notification.dingtalk.webhook;
+    let secret = config.notification.dingtalk.secret;
+
 
     let bot = DingTalkBot::new(webhook.clone(), secret.clone());
 
@@ -137,10 +141,15 @@ async fn test_send_text() -> Result<(), Error> {
 }
 
 #[tokio::test]
-async fn test_send_markdown() -> Result<(), Error> {
+async fn test_send_markdown() -> anyhow::Result<()> {
+
+    // 加载配置
+    use crate::config::TradingConfig;
+    let config = TradingConfig::load_trading_config("config.json").await?;
+
     // 设置你的 webhook 和 secret
-    let webhook = "https://oapi.dingtalk.com/robot/send?access_token=af239c52fb5aa86a96719498fc4894b75beaaa07bbd15777877895dc61b3ee07".to_string();
-    let secret = "SECf39f5df6d4957fa1123291f040ec27a47ec38073118a0bc78a24b82643ea8cd6".to_string();
+    let webhook = config.notification.dingtalk.webhook;
+    let secret = config.notification.dingtalk.secret;
 
     let bot = DingTalkBot::new(webhook.clone(), secret.clone());
 
